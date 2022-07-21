@@ -1,0 +1,11 @@
+1. Light and Dark mode switch
+
+In the header, there will be a button that allows the user to switch between a dark and light mode.
+The button's starting value should be set according to the user's computer's theme.
+If the user wants to change the theme manually, they can click the button and the theme will change.
+
+2. Show different data using APIs
+
+24H crypto data API: GET https://api2.binance.com/api/v3/ticker/24hr
+BTC live price: GET https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT - Update every second with setInterval
+Random activity generator: GET https://www.boredapi.com/api/activity

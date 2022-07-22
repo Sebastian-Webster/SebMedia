@@ -105,6 +105,14 @@ header.lightMode {
   border-bottom: 2px solid black;
 }
 
+.automaticBorderB.darkMode {
+  border-bottom: 2px solid white;
+}
+
+.automaticBorderB.lightMode {
+  border-bottom: 2px solid black;
+}
+
 .headerTitle.darkMode {
   color: yellow;
 }

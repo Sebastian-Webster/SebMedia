@@ -97,3 +97,7 @@ header {
 .headerTitle.darkMode {
   color: yellow;
 }
+
+.headerTitle.lightMode {
+  color: #ea820b;
+}

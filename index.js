@@ -38,7 +38,7 @@ function get24HCryptoData() {
 
         let itemContainer = sebCard.querySelector('.sebCardItemsContainer')
         for (item of dataToDisplay) {
-            let listItem = document.getElementById('24HCryptoDataItem')
+            let listItem = document.getElementById('CryptoDataItem')
             let clone = listItem.content.cloneNode(true)
 
             let symbol = item.symbol
@@ -50,10 +50,10 @@ function get24HCryptoData() {
 
             symbol = symbolSplitArray.join('')
 
-            clone.querySelector('.tickerSymbol-24HCryptoDataItem').textContent = symbol
-            clone.querySelector('.lastPrice-24HCryptoDataItem').textContent = parseFloat(item.lastPrice).toFixed(3)
+            clone.querySelector('.tickerSymbol-CryptoDataItem').textContent = symbol
+            clone.querySelector('.lastPrice-CryptoDataItem').textContent = parseFloat(item.lastPrice).toFixed(3)
 
-            let percentageDifferenceText = clone.querySelector('.percentagePriceChange-24HCryptoDataItem')
+            let percentageDifferenceText = clone.querySelector('.percentagePriceChange-CryptoDataItem')
 
             let priceDifference = parseFloat(item.priceChangePercent)
             let arrowSpan = document.createElement('span')
@@ -75,7 +75,7 @@ function get24HCryptoData() {
                 percentageDifferenceText.style.color = 'gray'
             }
 
-            clone.querySelector('.arrow-24HCryptoDataItem').appendChild(arrowSpan)
+            clone.querySelector('.arrow-CryptoDataItem').appendChild(arrowSpan)
 
             percentageDifferenceText.textContent = item.priceChangePercent + '%'
 
@@ -90,9 +90,82 @@ function get24HCryptoData() {
 }
 
 async function setUpLiveBitcoinData() {
-    console.log(await fetchBitcoinLivePrice())
+    const price = await fetchBitcoinLivePrice()
     let sebCardTemplate = document.getElementById('sebCardItem')
     let sebCard = sebCardTemplate.content.cloneNode(true);
+
+    sebCard.querySelector('.sebCard').id = 'liveBitcoinData'
+
+    let titleDiv = document.createElement('div')
+    let title = document.createElement('h1')
+    title.textContent = 'Live Bitcoin Data'
+    title.classList.add('darkMode', 'headerTitle')
+    titleDiv.appendChild(title)
+
+    sebCard.querySelector('.sebCardTitle').appendChild(titleDiv)
+
+    let priceItemTemplate = document.getElementById('CryptoDataItem')
+    let priceItem = priceItemTemplate.content.cloneNode(true)
+
+    priceItem.querySelector('div').classList.add('py-5')
+
+    priceItem.querySelector('.tickerSymbol-CryptoDataItem').textContent = 'BTC'
+    priceItem.querySelector('.lastPrice-CryptoDataItem').textContent = parseFloat(price).toFixed(3)
+
+    let percentageDifferenceText = priceItem.querySelector('.percentagePriceChange-CryptoDataItem')
+    percentageDifferenceText.textContent = '-%'
+    percentageDifferenceText.style.color = 'gray'
+
+    let arrowSpan = document.createElement('span')
+    arrowSpan.classList.add('iconify')
+    arrowSpan.setAttribute('data-width', '26')
+
+    arrowSpan.style.color = 'gray'
+    arrowSpan.setAttribute('data-icon', 'bi:dash-lg')
+
+    priceItem.querySelector('.arrow-CryptoDataItem').appendChild(arrowSpan)
+
+    sebCard.querySelector('.sebCardItemsContainer').appendChild(priceItem)
+
+
+    document.body.append(sebCard)
+
+    setInterval(() => {
+        updateLiveBitcoinData()
+    }, 500);
+}
+
+async function updateLiveBitcoinData() {
+    const bitcoinDataItem = document.getElementById('liveBitcoinData')
+    const oldPrice = parseFloat(bitcoinDataItem.querySelector('.lastPrice-CryptoDataItem').textContent)
+    const newPrice = parseFloat(await fetchBitcoinLivePrice()).toFixed(3)
+
+    const percentageDifference = (newPrice - oldPrice) / oldPrice * 100
+
+    const percentageDifferenceText = bitcoinDataItem.querySelector('.percentagePriceChange-CryptoDataItem')
+    percentageDifferenceText.textContent = percentageDifference.toFixed(2) + '%'
+
+    let arrowSpan = bitcoinDataItem.querySelector('.arrow-CryptoDataItem').firstChild
+    let lastPrice = bitcoinDataItem.querySelector('.lastPrice-CryptoDataItem')
+    lastPrice.textContent = newPrice
+
+    if (percentageDifference > 0) {
+        arrowSpan.style.color = 'green'
+        arrowSpan.setAttribute('data-flip', 'vertical')
+        arrowSpan.setAttribute('data-icon', 'bi:arrow-down')
+        percentageDifferenceText.style.color = 'green'
+        lastPrice.style.color = 'green'
+    } else if (percentageDifference < 0) {
+        arrowSpan.style.color = 'red'
+        arrowSpan.setAttribute('data-icon', 'bi:arrow-down')
+        percentageDifferenceText.style.color = 'red'
+        lastPrice.style.color = 'red'
+    } else {
+        arrowSpan.style.color = 'gray'
+        arrowSpan.setAttribute('data-icon', 'bi:dash-lg')
+        percentageDifferenceText.style.color = 'gray'
+        lastPrice.style.color = 'gray'
+    }
 }
 
 async function fetchBitcoinLivePrice() {

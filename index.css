@@ -70,6 +70,17 @@ header {
   position: sticky;
   top: 0;
   margin-bottom: 20px;
+  z-index: 5;
+}
+
+header.darkMode {
+  background-color: black;
+  color: white;
+}
+
+header.lightMode {
+  background-color: white;
+  color: black;
 }
 
 .sebCard {
@@ -100,4 +111,34 @@ header {
 
 .headerTitle.lightMode {
   color: #ea820b;
+}
+
+button.darkMode {
+  background-color: yellow;
+  color: black;
+}
+
+button.lightMode {
+  background-color: #ea820b;
+  color: black;
+}
+
+button:active, button:hover {
+  animation: fadeInAndOut 1s infinite;
+}
+
+.flashingElement {
+  animation: fadeInAndOut 1s infinite;
+}
+
+@keyframes fadeInAndOut {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }

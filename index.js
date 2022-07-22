@@ -15,6 +15,8 @@ function onSiteFirstLoad() {
     setUpLiveBitcoinData()
 
     setUpRandomActivityGenerator()
+
+    setUpHTTPCat()
 }
 
 function updateThemeOfElements() {
@@ -22,6 +24,45 @@ function updateThemeOfElements() {
         setElementsToDarkMode()
     } else {
         setElementsToLightMode()
+    }
+}
+
+function setUpHTTPCat() {
+    let sebCardTemplate = document.getElementById('sebCardItem')
+    let sebCard = sebCardTemplate.content.cloneNode(true);
+
+    sebCard.querySelector('div').id = 'httpCat'
+
+    let title = document.createElement('h1')
+    title.textContent = 'Generate a HTTP Cat'
+    title.classList.add('darkMode', 'headerTitle')
+
+    sebCard.querySelector('.sebCardTitle').appendChild(title)
+
+    let HTTPCatImage = document.createElement('img')
+    HTTPCatImage.setAttribute('src', 'https://http.cat/200')
+    HTTPCatImage.style.maxWidth = '100%'
+
+    sebCard.querySelector('.sebCardItemsContainer').appendChild(HTTPCatImage)
+
+    let HTTPInput = document.createElement('input')
+    HTTPInput.classList.add('form-control', 'darkMode', 'ms-4')
+    HTTPInput.id = 'HTTPInput'
+    HTTPInput.setAttribute('placeholder', 'Enter a HTTP Status Code')
+    HTTPInput.setAttribute('type', 'number')
+    sebCard.querySelector('.sebCardBottom').appendChild(HTTPInput)
+
+    document.body.appendChild(sebCard)
+    addButton(document.getElementById('httpCat').querySelector('.sebCardBottom'), 'Generate Cat', false, 'updateHTTPCat()')
+    updateThemeOfElements()
+}
+
+function updateHTTPCat() {
+    let HTTPCatItem = document.getElementById('httpCat')
+    let HTTPCode = HTTPCatItem.querySelector('#HTTPInput').value
+
+    if (HTTPCode != '') {
+        HTTPCatItem.querySelector('img').setAttribute('src', 'https://http.cat/' + HTTPCode)
     }
 }
 
@@ -211,18 +252,18 @@ async function setUpRandomActivityGenerator() {
     sebCard.querySelector('.sebCardItemsContainer').appendChild(randomActivityItem)
 
     let itemFooter = sebCard.querySelector('.sebCardBottom')
-    addButton(itemFooter)
+    addButton(itemFooter, 'Generate New Activity', true, 'showNewActivity()')
 
     document.body.append(sebCard)
     updateThemeOfElements()
 }
 
-function addButton(element) {
-    if (element.firstChild) element.removeChild(element.firstChild)
+function addButton(element, text, removeFirstChild, onclick) {
+    if (element.firstChild && removeFirstChild) element.removeChild(element.firstChild)
     let newActivityButton = document.createElement('button')
     newActivityButton.classList.add('btn', 'darkMode', 'btn-lg', 'mx-3')
-    newActivityButton.textContent = 'Generate New Activity'
-    newActivityButton.setAttribute('onclick', 'showNewActivity()')
+    newActivityButton.textContent = text
+    newActivityButton.setAttribute('onclick', onclick)
 
     element.appendChild(newActivityButton)
     updateThemeOfElements()
@@ -244,7 +285,7 @@ async function showNewActivity() {
     activityItem.querySelector('.Type-RandomActivityItem').textContent = 'Type: ' + type
     activityItem.querySelector('.Participants-RandomActivityItem').textContent = 'Participants: ' + participants
     activityItem.querySelector('.Price-RandomActivityItem').textContent = 'Price: $' + price
-    addButton(sebCardFooter)
+    addButton(sebCardFooter, 'Generate New Activity', true, 'showNewActivity()')
 }
 
 async function getRandomActivity() {

@@ -151,8 +151,7 @@ async function updateLiveBitcoinData() {
 
     if (percentageDifference > 0) {
         arrowSpan.style.color = 'green'
-        arrowSpan.setAttribute('data-flip', 'vertical')
-        arrowSpan.setAttribute('data-icon', 'bi:arrow-down')
+        arrowSpan.setAttribute('data-icon', 'bi:arrow-up')
         percentageDifferenceText.style.color = 'green'
         lastPrice.style.color = 'green'
     } else if (percentageDifference < 0) {

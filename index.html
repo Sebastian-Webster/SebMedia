@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="index.css">
     </head>
     <body>
-        <header class="d-flex justify-content-around flex-row align-items-center">
+        <header class="d-flex justify-content-around flex-row align-items-center darkMode">
             <div></div>
             <h1>SebMedia</h1>
             <div id="lightDarkModeSwitch" class="d-flex justify-content-center align-items-stretch">
@@ -24,9 +24,9 @@
         <template id="sebCardItem">
             <div class="container d-flex justify-content-center my-5">
                 <div class="sebCard darkMode">
-                    <div class="sebCardTitle py-2 px-5"></div>
+                    <div class="sebCardTitle text-center py-2 px-5"></div>
                     <div class="sebCardItemsContainer"></div>
-                    <div class="py-3"></div>
+                    <div class="sebCardBottom d-flex justify-content-center py-3"></div>
                 </div>
             </div>
         </template>
@@ -37,6 +37,15 @@
                 <h3 class="lastPrice-CryptoDataItem mx-2">Price</h3>
                 <div class="arrow-CryptoDataItem mx-2"></div>
                 <h3 class="percentagePriceChange-CryptoDataItem mx-1">Percentage</h3>
+            </div>
+        </template>
+
+        <template id="RandomActivityItem">
+            <div class="automaticBorderY darkMode text-center">
+                <h3 class="Activity-RandomActivityItem mx-1">Activity</h3>
+                <h3 class="Type-RandomActivityItem mx-2">Type</h3>
+                <h3 class="Participants-RandomActivityItem mx-2">Participants</h3>
+                <h3 class="Price-RandomActivityItem mx-1">Price</h3>
             </div>
         </template>
 

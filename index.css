@@ -38,12 +38,16 @@
   transition: .4s;
 }
 
-input:checked + .slider {
-  background-color: #2196F3;
+input:checked + .slider:before {
+  background-color: black;
 }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+input + .slider {
+  background-color: #ea820b;
+}
+
+input:checked + .slider {
+  background-color: yellow;
 }
 
 input:checked + .slider:before {
@@ -81,6 +85,14 @@ header.darkMode {
 header.lightMode {
   background-color: white;
   color: black;
+}
+
+header.darkMode > h1 {
+  color: yellow;
+}
+
+header.lightMode > h1 {
+  color: #ea820b;
 }
 
 .sebCard {
@@ -137,6 +149,20 @@ button:active, button:hover {
 
 .flashingElement {
   animation: fadeInAndOut 1s infinite;
+}
+
+input.darkMode:active, input.darkMode:hover, input.darkMode:focus {
+  border: 2px solid yellow;
+  border-radius: 25px;
+  background-color: black;
+  color: white;
+}
+
+input.lightMode:active, input.lightMode:hover, input.lightMode:focus {
+  border: 2px solid #ea820b;
+  border-radius: 25px;
+  background-color: white;
+  color: black;
 }
 
 @keyframes fadeInAndOut {

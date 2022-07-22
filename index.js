@@ -1,5 +1,7 @@
 let darkModeSwitch = document.querySelector("input[name=darkModeSwitch]");
 
+var accounts = [];
+
 
 function onSiteFirstLoad() {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -17,6 +19,8 @@ function onSiteFirstLoad() {
     setUpRandomActivityGenerator()
 
     setUpHTTPCat()
+
+    getPublicIP()
 }
 
 function updateThemeOfElements() {
@@ -25,6 +29,34 @@ function updateThemeOfElements() {
     } else {
         setElementsToLightMode()
     }
+}
+
+function getPublicIP() {
+    fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(result => {
+        let sebCardTemplate = document.getElementById('sebCardItem')
+        let sebCard = sebCardTemplate.content.cloneNode(true);
+
+        let titleDiv = document.createElement('div')
+        let title = document.createElement('h1')
+        title.textContent = 'Public IP'
+        title.classList.add('darkMode', 'headerTitle')
+        titleDiv.appendChild(title)
+
+        sebCard.querySelector('.sebCardTitle').appendChild(titleDiv)
+
+        let IPItemTemplate = document.getElementById('PublicIPItem')
+        let IPItem = IPItemTemplate.content.cloneNode(true)
+
+        IPItem.querySelector('.IPTitle-PublicIPItem').textContent = 'Your public IP address:'
+        IPItem.querySelector('.IP-PublicIPItem').textContent = result.ip
+
+        sebCard.querySelector('.sebCardItemsContainer').appendChild(IPItem)
+
+        document.body.append(sebCard)
+        updateThemeOfElements()
+    }).catch(error => console.error(error))
 }
 
 function setUpHTTPCat() {
@@ -46,10 +78,15 @@ function setUpHTTPCat() {
     sebCard.querySelector('.sebCardItemsContainer').appendChild(HTTPCatImage)
 
     let HTTPInput = document.createElement('input')
-    HTTPInput.classList.add('form-control', 'darkMode', 'ms-4')
+    HTTPInput.classList.add('form-control', 'darkMode', 'mx-4')
     HTTPInput.id = 'HTTPInput'
     HTTPInput.setAttribute('placeholder', 'Enter a HTTP Status Code')
     HTTPInput.setAttribute('type', 'number')
+    HTTPInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            updateHTTPCat()
+        }
+    })
     sebCard.querySelector('.sebCardBottom').appendChild(HTTPInput)
 
     document.body.appendChild(sebCard)

@@ -1,6 +1,7 @@
 let darkModeSwitch = document.querySelector("input[name=darkModeSwitch]");
 
-var accounts = [];
+let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+let signedInAs = JSON.parse(localStorage.getItem('signedInAs')) || null;
 
 
 function onSiteFirstLoad() {
@@ -12,6 +13,8 @@ function onSiteFirstLoad() {
         darkModeSwitch.checked = false;
     }
 
+    actUponLoginStatus();
+
     get24HCryptoData()
 
     setUpLiveBitcoinData()
@@ -21,6 +24,50 @@ function onSiteFirstLoad() {
     setUpHTTPCat()
 
     getPublicIP()
+}
+
+function actUponLoginStatus() {
+    let signupForm = document.getElementById('signupFormCard')
+    if (typeof signedInAs == 'object' && signedInAs != null) {
+        //Signed in
+        if (signupForm) {
+            signupForm.remove()
+        }
+        document.getElementById('loggedInAs-Header').textContent = `Signed in as ${signedInAs.name}`
+        document.getElementById('logoutLink-Header').textContent = 'Logout'
+    } else if (accounts) {
+        //Show sign up form with option to signin
+        showSignupForm(true)
+        document.getElementById('loggedInAs-Header').textContent = ''
+        document.getElementById('logoutLink-Header').textContent = ''
+    } else {
+        //Not signed in and there are no accounts so show signup form
+        //Show signup form without sign in option
+        showSignupForm(false)
+        document.getElementById('loggedInAs-Header').textContent = ''
+        document.getElementById('logoutLink-Header').textContent = ''
+    }
+}
+
+function showSignupForm() {
+    let sebCardTemplate = document.getElementById('sebCardItem')
+    let sebCard = sebCardTemplate.content.cloneNode(true);
+
+    sebCard.querySelector('div').id = 'signupFormCard'
+
+    let title = document.createElement('h1')
+    title.textContent = 'Sign up to create notes'
+    title.classList.add('darkMode', 'headerTitle')
+
+    sebCard.querySelector('.sebCardTitle').appendChild(title)
+
+    let signupFormTemplate = document.getElementById('signupFormTemplate')
+    let signupForm = signupFormTemplate.content.cloneNode(true)
+    signupForm.querySelector('.card').classList.add('darkMode')
+    signupForm.querySelector('.card').style.border = 'none'
+    sebCard.querySelector('.sebCardItemsContainer').appendChild(signupForm)
+
+    document.body.appendChild(sebCard)
 }
 
 function updateThemeOfElements() {
@@ -377,3 +424,101 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', eve
         darkModeSwitch.checked = false
     }
 });
+
+function signup(e) {
+    e.preventDefault();
+
+    let form = document.getElementById('signupForm')
+    let nameWarning = document.getElementById('nameWarning-signupForm')
+    let emailWarning = document.getElementById('emailWarning-signupForm')
+    let passwordWarning = document.getElementById('passwordWarning-signupForm')
+    let repeatPasswordWarning = document.getElementById('repeatPasswordWarning-signupForm')
+    let behaviourAgreementWarning = document.getElementById('behaviourAgreementWarning-signupForm')
+
+    nameWarning.textContent = ''
+    emailWarning.textContent = ''
+    passwordWarning.textContent = ''
+    repeatPasswordWarning.textContent = ''
+    behaviourAgreementWarning.textContent = ''
+
+    let userName = form.name.value
+    let userEmail = form.email.value
+    let userPassword = form.password.value
+    let userRepeatPassword = form.repeatPassword.value
+    let userBehaviourAgreement = form.behaviourAgreement.checked
+
+    if (userName == '') {
+        nameWarning.textContent = 'Please enter a name'
+    }
+
+    if (userEmail == '') {
+        emailWarning.textContent = 'Please enter an email'
+    }
+
+    if (userPassword == '') {
+        passwordWarning.textContent = 'Please enter a password'
+    }
+
+    if (userRepeatPassword == '') {
+        repeatPasswordWarning.textContent = 'Please repeat your password'
+    }
+
+    if (!userBehaviourAgreement) {
+        behaviourAgreementWarning.textContent = 'Please agree to the behaviour agreement'
+    }
+
+    if (userName == '' || userEmail == '' || userPassword == '' || userRepeatPassword == '' || !userBehaviourAgreement) {
+        return
+    }
+
+    if (userPassword != userRepeatPassword) {
+        passwordWarning.textContent = 'Passwords do not match'
+        repeatPasswordWarning.textContent = 'Passwords do not match'
+        return
+    }
+
+    const nameAlreadyExists = accounts.findIndex(account => account.name == userName) != -1
+    const emailAlreadyExists = accounts.findIndex(account => account.email === userEmail) != -1
+
+    if (nameAlreadyExists) {
+        nameWarning.textContent = 'Name already exists'
+    }
+
+    if (emailAlreadyExists) {
+        emailWarning.textContent = 'Email already exists'
+    }
+
+    if (nameAlreadyExists || emailAlreadyExists) {
+        return
+    }
+
+    let userObject = {
+        name: userName,
+        email: userEmail,
+        password: userPassword,
+        notes: {}
+    }
+
+
+    accounts.push(userObject)
+    localStorage.setItem('accounts', JSON.stringify(accounts))
+    signedInAs = userObject;
+    localStorage.setItem('signedInAs', JSON.stringify(signedInAs))
+
+    actUponLoginStatus()
+}
+
+function logout() {
+    accounts.splice(accounts.findIndex(account => account.name == signedInAs.name), 1)
+    if (accounts.length == 0) localStorage.removeItem('accounts')
+    else localStorage.setItem('accounts', JSON.stringify(accounts))
+    signedInAs = null;
+    localStorage.removeItem('signedInAs')
+
+    actUponLoginStatus()
+}
+
+let signupForm = document.getElementById('signupForm')
+if (signupForm) {
+    signupForm.addEventListener('submit', signup)
+}

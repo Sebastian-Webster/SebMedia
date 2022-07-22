@@ -38,6 +38,11 @@
   transition: .4s;
 }
 
+body, header {
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
 input:checked + .slider:before {
   background-color: black;
 }
@@ -152,17 +157,37 @@ button:active, button:hover {
 }
 
 input.darkMode:active, input.darkMode:hover, input.darkMode:focus {
-  border: 2px solid yellow;
+  border: 1px solid yellow;
   border-radius: 25px;
   background-color: black;
   color: white;
 }
 
 input.lightMode:active, input.lightMode:hover, input.lightMode:focus {
-  border: 2px solid #ea820b;
+  border: 1px solid #ea820b;
   border-radius: 25px;
   background-color: white;
   color: black;
+}
+
+button:active {
+  transform: scale(0.9);
+}
+
+.warning {
+  color: red;
+}
+
+a {
+  cursor: pointer;
+}
+
+.rainbowColor {
+  animation: rainbowColor 3s infinite;
+}
+
+.rainbowColor:hover {
+  animation: none
 }
 
 @keyframes fadeInAndOut {
@@ -174,5 +199,29 @@ input.lightMode:active, input.lightMode:hover, input.lightMode:focus {
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes rainbowColor {
+  0% {
+    color: red;
+  }
+  16.67% {
+    color: orange;
+  }
+  33.34% {
+    color: yellow;
+  }
+  50% {
+    color: green;
+  }
+  66.67% {
+    color: blue;
+  }
+  83.34% {
+    color: indigo;
+  }
+  100% {
+    color: red;
   }
 }

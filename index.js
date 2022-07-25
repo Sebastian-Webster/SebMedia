@@ -1,7 +1,11 @@
 let darkModeSwitch = document.querySelector("input[name=darkModeSwitch]");
 
-let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+let accounts = JSON.parse(localStorage.getItem('accounts')) || [{id: 1, name: 'seb', email: 'seb@seb.seb', password: 'seb', notes: []}];
 let signedInAs = JSON.parse(localStorage.getItem('signedInAs')) || null;
+
+let intervalToGetBitcoinDataMs = 500;
+
+let switchingAccount = false;
 
 
 function onSiteFirstLoad() {
@@ -26,30 +30,163 @@ function onSiteFirstLoad() {
     getPublicIP()
 }
 
+function showCreateNoteForm() {
+    let sebCardTemplate = document.getElementById('sebCardItem')
+    let sebCard = sebCardTemplate.content.cloneNode(true);
+
+    sebCard.querySelector('div').id = 'createNoteFormCard'
+    sebCard.querySelector('.sebCard').classList.add('container-fluid') //Makes the card full width
+
+    let createNoteFormTemplate = document.getElementById('createNoteFormTemplate')
+    let createNoteForm = createNoteFormTemplate.content.cloneNode(true)
+    createNoteForm.querySelector('.card').classList.add('darkMode')
+    createNoteForm.querySelector('.card').style.border = 'none'
+
+    createNoteForm.querySelector('#createNoteForm').addEventListener('submit', createNote)
+
+    sebCard.querySelector('.sebCardItemsContainer').appendChild(createNoteForm)
+
+    document.querySelector('header').after(sebCard) //Insert the create note form after the header
+}
+
+function createNote(e) {
+    e.preventDefault()
+
+
+    let createNoteForm = document.getElementById('createNoteForm')
+    let descriptionWarning = document.getElementById('descriptionWarning-createNoteForm')
+
+    descriptionWarning.textContent = ''
+
+
+    let note = {
+        id: signedInAs.notes.length == 0 ? 1 : signedInAs.notes[0].id + 1, //The id of the note is the id of the last note plus one or 1 if there are no notes
+        title: createNoteForm.noteTitle.value,
+        description: createNoteForm.noteDescription.value,
+    }
+
+    if (note.title == '' || note.title.trim().length == 0) {
+        note.title = 'Untitled Note'
+    }
+
+    if (note.description == '' || note.description.trim().length == 0) {
+        descriptionWarning.textContent = 'Please enter a description'
+        return
+    }
+    if (signedInAs != null) {
+        signedInAs.notes.unshift(note)
+        localStorage.setItem('signedInAs', JSON.stringify(signedInAs))
+        accounts[signedInAs.id - 1] = signedInAs
+        localStorage.setItem('accounts', JSON.stringify(accounts))
+        createNoteForm.reset()
+
+        displayNote(note)
+    } else {
+        alert('An error occured. This widget is not supposed to be showing because you are not signed in. Please sign in to create notes')
+    }
+}
+
+function setupNotesDisplay() {
+    let sebCardTemplate = document.getElementById('sebCardItem')
+    let sebCard = sebCardTemplate.content.cloneNode(true);
+
+    sebCard.querySelector('div').id = 'notesContainer'
+    sebCard.querySelector('.sebCard').classList.add('container-fluid') //Makes the card full width
+
+    let title = document.createElement('h1')
+    title.textContent = 'Your Notes'
+    title.classList.add('darkMode', 'headerTitle')
+    sebCard.querySelector('.sebCardTitle').appendChild(title)
+
+    sebCard.querySelector('.sebCardItemsContainer').classList.add('row', 'row-cols-1', 'row-cols-md-2', 'row-cols-xxl-4', 'px-2')
+
+    if (signedInAs?.notes?.length == 0) {
+        sebCard.querySelector('div').style.position = 'absolute'
+        sebCard.querySelector('div').style.visibility = 'hidden'
+    } else {
+        sebCard.querySelector('div').style.position = 'static'
+        sebCard.querySelector('div').style.visibility = 'visible'
+    }
+
+    document.querySelector('#createNoteFormCard').after(sebCard) //Insert the notes container after the create note form
+
+    for (let note of signedInAs.notes) displayNote(note)
+}
+
+function displayNote(note) {
+    let noteCardTemplate = document.getElementById('noteCardTemplate')
+    let noteCard = noteCardTemplate.content.cloneNode(true)
+
+    noteCard.querySelector('div').id = `noteCard-${note.id}`
+
+    noteCard.querySelector('.card').classList.add('darkMode')
+
+    noteCard.querySelector('.card-title').textContent = note.title
+    noteCard.querySelector('.card-text').textContent = note.description
+
+    noteCard.querySelector('.deleteNoteButton').setAttribute('onclick', `deleteNote(${note.id})`)
+
+    document.getElementById('notesContainer').querySelector('.sebCardItemsContainer').appendChild(noteCard)
+
+    let notesContainer = document.getElementById('notesContainer')
+    notesContainer.style.position = 'static'
+    notesContainer.style.visibility = 'visible'
+}
+
+function deleteNote(id) {
+    let noteToDelete = signedInAs.notes.find(note => note.id == id)
+    signedInAs.notes.splice(signedInAs.notes.indexOf(noteToDelete), 1)
+    localStorage.setItem('signedInAs', JSON.stringify(signedInAs))
+    accounts[signedInAs.id - 1] = signedInAs
+    localStorage.setItem('accounts', JSON.stringify(accounts))
+    document.getElementById(`noteCard-${id}`).remove()
+
+    if (signedInAs?.notes?.length == 0) {
+        let notesContainer = document.getElementById('notesContainer')
+        notesContainer.style.position = 'absolute'
+        notesContainer.style.visibility = 'hidden'
+    }
+}
+
 function actUponLoginStatus() {
     let signupForm = document.getElementById('signupFormCard')
+    let loginForm = document.getElementById('loginFormCard')
+    let createNoteCard = document.getElementById('createNoteFormCard')
+    let notesContainer = document.getElementById('notesContainer')
     if (typeof signedInAs == 'object' && signedInAs != null) {
         //Signed in
-        if (signupForm) {
-            signupForm.remove()
-        }
+        if (signupForm) signupForm.remove()
+        if (loginForm) loginForm.remove()
+        if (!createNoteCard) showCreateNoteForm()
+        if (notesContainer) notesContainer.remove()
+        setupNotesDisplay() //Refresh notes display
+
         document.getElementById('loggedInAs-Header').textContent = `Signed in as ${signedInAs.name}`
         document.getElementById('logoutLink-Header').textContent = 'Logout'
-    } else if (accounts) {
+        document.getElementById('switchAccountLink-Header').textContent = 'Switch account'
+    } else if (accounts.length) {
+        if (createNoteCard) createNoteCard.remove()
+        if (notesContainer) notesContainer.remove()
         //Show sign up form with option to signin
         showSignupForm(true)
         document.getElementById('loggedInAs-Header').textContent = ''
         document.getElementById('logoutLink-Header').textContent = ''
+        document.getElementById('switchAccountLink-Header').textContent = ''
     } else {
+        if (createNoteCard) createNoteCard.remove()
+        if (notesContainer) notesContainer.remove()
         //Not signed in and there are no accounts so show signup form
         //Show signup form without sign in option
         showSignupForm(false)
         document.getElementById('loggedInAs-Header').textContent = ''
         document.getElementById('logoutLink-Header').textContent = ''
+        document.getElementById('switchAccountLink-Header').textContent = ''
     }
 }
 
-function showSignupForm() {
+function showSignupForm(showLoginButton) {
+    let loginForm = document.getElementById('loginFormCard')
+    if (loginForm) loginForm.remove()
     let sebCardTemplate = document.getElementById('sebCardItem')
     let sebCard = sebCardTemplate.content.cloneNode(true);
 
@@ -67,7 +204,55 @@ function showSignupForm() {
     signupForm.querySelector('.card').style.border = 'none'
     sebCard.querySelector('.sebCardItemsContainer').appendChild(signupForm)
 
-    document.body.appendChild(sebCard)
+    if (!showLoginButton) {
+        sebCard.querySelector('#loginButton-SignupForm').remove()
+    }
+
+    document.querySelector('header').after(sebCard) //Insert the signup form after the header
+    document.getElementById('signupForm').addEventListener('submit', signup)
+}
+
+function switchAccountToggle() {
+    let signupForm = document.getElementById('signupFormCard')
+    let loginForm = document.getElementById('loginFormCard')
+    if (switchingAccount) {
+        if (signupForm) {
+            signupForm.remove()
+        }
+        if (loginForm) {
+            loginForm.remove()
+        }
+        document.getElementById('switchAccountLink-Header').textContent = 'Switch account'
+        switchingAccount = false
+    } else {
+        showSignupForm(true)
+        document.getElementById('switchAccountLink-Header').textContent = 'Hide account switcher'
+        switchingAccount = true
+    }
+}
+
+function showLoginForm() {
+    let signupForm = document.getElementById('signupFormCard')
+    if (signupForm) signupForm.remove()
+    let sebCardTemplate = document.getElementById('sebCardItem')
+    let sebCard = sebCardTemplate.content.cloneNode(true);
+
+    sebCard.querySelector('div').id = 'loginFormCard'
+
+    let title = document.createElement('h1')
+    title.textContent = 'Login to create notes'
+    title.classList.add('darkMode', 'headerTitle')
+
+    sebCard.querySelector('.sebCardTitle').appendChild(title)
+
+    let loginFormTemplate = document.getElementById('loginFormTemplate')
+    let loginForm = loginFormTemplate.content.cloneNode(true)
+    loginForm.querySelector('.card').classList.add('darkMode')
+    loginForm.querySelector('.card').style.border = 'none'
+    sebCard.querySelector('.sebCardItemsContainer').appendChild(loginForm)
+
+    document.querySelector('header').after(sebCard) //Insert the signup form after the header
+    document.getElementById('loginForm').addEventListener('submit', login)
 }
 
 function updateThemeOfElements() {
@@ -186,7 +371,7 @@ function get24HCryptoData() {
             symbol = symbolSplitArray.join('')
 
             clone.querySelector('.tickerSymbol-CryptoDataItem').textContent = symbol
-            clone.querySelector('.lastPrice-CryptoDataItem').textContent = parseFloat(item.lastPrice).toFixed(3)
+            clone.querySelector('.lastPrice-CryptoDataItem').textContent = '$' + parseFloat(item.lastPrice).toFixed(3)
 
             let percentageDifferenceText = clone.querySelector('.percentagePriceChange-CryptoDataItem')
 
@@ -238,6 +423,12 @@ async function setUpLiveBitcoinData() {
     title.classList.add('darkMode', 'headerTitle')
     titleDiv.appendChild(title)
 
+    let flashingCircle = document.createElement('div')
+    flashingCircle.classList.add('circle', 'flashingElement')
+    titleDiv.appendChild(flashingCircle)
+
+    titleDiv.classList.add('d-flex', 'justify-content-center', 'flex-row', 'align-items-center')
+
     sebCard.querySelector('.sebCardTitle').appendChild(titleDiv)
 
     let priceItemTemplate = document.getElementById('CryptoDataItem')
@@ -247,7 +438,7 @@ async function setUpLiveBitcoinData() {
 
     priceItem.querySelector('.tickerSymbol-CryptoDataItem').textContent = 'BTC'
     price = parseFloat(parseFloat(price).toFixed(3))
-    priceItem.querySelector('.lastPrice-CryptoDataItem').textContent = (price > -0.011 && price < 0.011 ? '0.00' : price) + '%'
+    priceItem.querySelector('.lastPrice-CryptoDataItem').textContent = '$' + (price > -0.011 && price < 0.011 ? '0.00' : price) + '%'
 
     let percentageDifferenceText = priceItem.querySelector('.percentagePriceChange-CryptoDataItem')
     percentageDifferenceText.textContent = '-%'
@@ -264,28 +455,34 @@ async function setUpLiveBitcoinData() {
 
     sebCard.querySelector('.sebCardItemsContainer').appendChild(priceItem)
 
+    updateTimeTitle = document.createElement('h5')
+    intervalToGetBitcoinDataSeconds = intervalToGetBitcoinDataMs / 1000
+    updateTimeTitle.textContent = `Updates every ${intervalToGetBitcoinDataSeconds >= 1 ? intervalToGetBitcoinDataSeconds == 1 ? 'second' : intervalToGetBitcoinDataSeconds + ' seconds': intervalToGetBitcoinDataMs + ' milliseconds'}`
+    updateTimeTitle.classList.add('darkMode', 'headerTitle')
+    sebCard.querySelector('.sebCardBottom').appendChild(updateTimeTitle)
+
 
     document.body.append(sebCard)
     updateThemeOfElements()
 
     setInterval(() => {
         updateLiveBitcoinData()
-    }, 500);
+    }, intervalToGetBitcoinDataMs);
 }
 
 async function updateLiveBitcoinData() {
     const bitcoinDataItem = document.getElementById('liveBitcoinData')
-    const oldPrice = parseFloat(bitcoinDataItem.querySelector('.lastPrice-CryptoDataItem').textContent)
+    const oldPrice = parseFloat(bitcoinDataItem.querySelector('.lastPrice-CryptoDataItem').textContent.slice(1))
     const newPrice = parseFloat(await fetchBitcoinLivePrice()).toFixed(3)
 
-    const percentageDifference = ((newPrice - oldPrice) / oldPrice * 100).toFixed(2)
+    const percentageDifference = ((newPrice - oldPrice) / oldPrice * 100).toFixed(3)
 
     const percentageDifferenceText = bitcoinDataItem.querySelector('.percentagePriceChange-CryptoDataItem')
     percentageDifferenceText.textContent = percentageDifference + '%'
 
     let arrowSpan = bitcoinDataItem.querySelector('.arrow-CryptoDataItem').firstChild
     let lastPrice = bitcoinDataItem.querySelector('.lastPrice-CryptoDataItem')
-    lastPrice.textContent = newPrice
+    lastPrice.textContent = '$' + newPrice
 
     if (percentageDifference > 0) {
         arrowSpan.style.color = 'green'
@@ -493,10 +690,11 @@ function signup(e) {
     }
 
     let userObject = {
+        id: accounts.length == 0 ? 1 : accounts[accounts.length - 1].id + 1,
         name: userName,
         email: userEmail,
         password: userPassword,
-        notes: {}
+        notes: []
     }
 
 
@@ -505,20 +703,68 @@ function signup(e) {
     signedInAs = userObject;
     localStorage.setItem('signedInAs', JSON.stringify(signedInAs))
 
+    window.scrollTo(0, 0)
+
+    actUponLoginStatus()
+}
+
+function login(e) {
+    e.preventDefault();
+
+    let form = document.getElementById('loginForm')
+    let emailWarning = document.getElementById('emailWarning-loginForm')
+    let passwordWarning = document.getElementById('passwordWarning-loginForm')
+
+    emailWarning.textContent = ''
+    passwordWarning.textContent = ''
+
+    let userEmail = form.email.value
+    let userPassword = form.password.value
+
+    if (userEmail == '') {
+        emailWarning.textContent = 'Please enter an email'
+    }
+
+    if (userPassword == '') {
+        passwordWarning.textContent = 'Please enter a password'
+    }
+
+    if (userEmail == '' || userPassword == '') {
+        return
+    }
+
+    const userIndex = accounts.findIndex(account => account.email === userEmail)
+
+    if (userIndex == -1) {
+        emailWarning.textContent = 'Email not found'
+        return
+    }
+
+    if (accounts[userIndex].password != userPassword) {
+        passwordWarning.textContent = 'Password incorrect'
+        return
+    }
+
+    signedInAs = accounts[userIndex]
+    localStorage.setItem('signedInAs', JSON.stringify(signedInAs))
+
+    window.scrollTo(0, 0)
+
     actUponLoginStatus()
 }
 
 function logout() {
+    /*
     accounts.splice(accounts.findIndex(account => account.name == signedInAs.name), 1)
     if (accounts.length == 0) localStorage.removeItem('accounts')
     else localStorage.setItem('accounts', JSON.stringify(accounts))
+    --- Commenting this code out so that the user can log back into their account
+    --- later on when they visit the website again.
+    --- May implement deleting accounts on login later though so that
+    --- is why I am not deleting this at the moment.
+    */
     signedInAs = null;
     localStorage.removeItem('signedInAs')
 
     actUponLoginStatus()
-}
-
-let signupForm = document.getElementById('signupForm')
-if (signupForm) {
-    signupForm.addEventListener('submit', signup)
 }

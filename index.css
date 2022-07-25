@@ -38,11 +38,6 @@
   transition: .4s;
 }
 
-body, header {
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
 input:checked + .slider:before {
   background-color: black;
 }
@@ -170,6 +165,18 @@ input.lightMode:active, input.lightMode:hover, input.lightMode:focus {
   color: black;
 }
 
+textarea.darkMode:active, textarea.darkMode:hover, textarea.darkMode:focus {
+  border: 1px solid yellow;
+  background-color: black;
+  color: white;
+}
+
+textarea.lightMode:active, textarea.lightMode:hover, textarea.lightMode:focus {
+  border: 1px solid #ea820b;
+  background-color: white;
+  color: black;
+}
+
 button:active {
   transform: scale(0.9);
 }
@@ -180,6 +187,29 @@ button:active {
 
 a {
   cursor: pointer;
+}
+
+a.darkMode {
+  color: yellow;
+  text-decoration: solid;
+  text-decoration-color: yellow;
+  text-decoration-thickness: 2px;
+}
+
+a.lightMode {
+  color: #ea820b;
+  text-decoration: solid;
+  text-decoration-color: #ea820b;
+  text-decoration-thickness: 2px;
+}
+
+.circle {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  aspect-ratio: 1;
+  background-color: red;
+  margin-left: 10px;
 }
 
 .rainbowColor {

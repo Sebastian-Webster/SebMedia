@@ -20,12 +20,19 @@
                     <span class="iconify" data-icon="bi:moon-fill" data-width="34"></span>
                 </div>
             </div>
-            <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center align-items-center">
                 <h4 id="loggedInAs-Header" class="darkMode headerTitle"></h4>
                 <div class="mx-2"></div>
-                <a class="darkMode headerTitle" id="logoutLink-Header"onclick="logout()"></a>
+                <a class="darkMode me-2" id="logoutLink-Header"onclick="logout()"></a>
+                <a class="darkMode" id="switchAccountLink-Header"onclick="switchAccountToggle()"></a>
             </div>
         </header>
+
+        <noscript>
+            <div class="d-flex justify-content-center align-items-center">
+                <h1>Please enable JavaScript for this website to work</h1>
+            </div>
+        </noscript>
 
         <template id="sebCardItem">
             <div class="container d-flex justify-content-center my-5">
@@ -104,7 +111,7 @@
                                 </div>
                             </div>
             
-                            <div class="d-flex flex-row align-items-center mb-4">
+                            <div class="d-flex flex-row align-items-center mb-3">
                                 <i class="fas fa-key fa-lg me-3 fa-fw"></i>
                                 <div class="form-outline flex-fill mb-0">
                                     <input type="password" id="form3Example4cd" class="form-control darkMode" name="repeatPassword"/>
@@ -113,6 +120,12 @@
                                     <label class="warning" id="repeatPasswordWarning-signupForm"></label>
                                 </div>
                             </div>
+
+                            <div class="d-flex justify-content-center mb-2" id="loginButton-SignupForm">
+                                <label class="form-check-label">
+                                    Or you can <a class="darkMode" onclick="showLoginForm()">Login</a>
+                                </label>
+                            </div>
             
                             <div class="form-check d-flex justify-content-center">
                                 <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c" name="behaviourAgreement"/>
@@ -120,10 +133,11 @@
                                     I agree to behave properly on this website
                                 </label>
                             </div>
+
                             <div class="mb-5 d-flex justify-content-center">
                                 <label class="warning" id="behaviourAgreementWarning-signupForm"></label>
                             </div>
-            
+
                             <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                                 <button type="submit" class="btn btn-lg darkMode">Signup</button>
                             </div>
@@ -139,6 +153,118 @@
                         </div>
                         </div>
                     </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="loginFormTemplate">
+            <div class="row d-flex justify-content-center align-items-center h-100" id="loginFormParent">
+                <div class="col-lg-12 col-xl-11">
+                    <div class="card text-black align-self-center" style="border-radius: 25px;">
+                    <div class="card-body p-md-5">
+                        <div class="row justify-content-center">
+                        <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+            
+                            <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4 headerTitle darkMode">Login</p>
+            
+                            <form class="mx-1 mx-md-4" id="loginForm">
+            
+                            <div class="d-flex flex-row align-items-center mb-4">
+                                <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                <div class="form-outline flex-fill mb-0">
+                                    <input type="email" id="form3Example1c" class="form-control darkMode" name="email"/>
+                                    <label class="form-label" for="form3Example1c">Email</label>
+                                    <br>
+                                    <label class="warning" id="emailWarning-loginForm"></label>
+                                </div>
+                            </div>
+            
+                            <div class="d-flex flex-row align-items-center mb-4">
+                                <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                <div class="form-outline flex-fill mb-0">
+                                    <input type="password" id="form3Example3c" class="form-control darkMode" name="password"/>
+                                    <label class="form-label" for="form3Example3c">Password</label>
+                                    <br>
+                                    <label class="warning" id="passwordWarning-loginForm"></label>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center mb-3">
+                                <label class="form-check-label">
+                                    Or you can <a class="darkMode" onclick="showSignupForm(true)">Signup</a>
+                                </label>
+                            </div>
+            
+                            <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                                <button type="submit" class="btn btn-lg darkMode">Login</button>
+                            </div>
+            
+                            </form>
+            
+                        </div>
+                        <div class="col-4 col-md-8 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+            
+                            <img src="images/postit-note.png"
+                            class="img-fluid" alt="Sample image">
+            
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="createNoteFormTemplate">
+            <div class="row d-flex justify-content-center align-items-center h-100" id="createNoteFormParent">
+                <div class="col-lg-12 col-xl-11">
+                    <div class="card text-black align-self-center" style="border-radius: 25px;">
+                        <div class="row justify-content-center">
+                        <div class="col-md-10">
+            
+                            <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-2 mt-4 headerTitle darkMode">Create a Note</p>
+            
+                            <form class="mx-1 mx-md-2" id="createNoteForm">
+            
+                            <div class="d-flex flex-row align-items-center mb-4">
+                                <div class="form-outline flex-fill mb-0">
+                                    <label class="form-label" for="form3Example1c">Title</label>
+                                    <input type="text" id="form3Example1c" class="form-control darkMode" name="noteTitle"/>
+                                </div>
+                            </div>
+            
+                            <div class="d-flex flex-row align-items-center mb-4">
+                                <div class="form-outline flex-fill mb-0">
+                                    <label class="form-label" for="form3Example3c">Description</label>
+                                    <textarea type="text" id="form3Example3c" class="form-control darkMode" name="noteDescription"></textarea>
+                                    <br>
+                                    <label class="warning" id="descriptionWarning-createNoteForm"></label>
+                                </div>
+                            </div>
+            
+                            <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                                <button type="submit" class="btn btn-lg darkMode">Create Note</button>
+                            </div>
+            
+                            </form>
+            
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="noteCardTemplate">
+            <div class="p-3 p-xxl-5">
+                <div class="col">
+                    <div class="card sebCard">
+                        <div class="card-body">
+                            <h5 class="card-title mx-2">Card title</h5>
+                            <p class="card-text mx-2">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <button class="btn btn-lg darkMode deleteNoteButton mx-2">Delete Note</button>
+                        </div>
                     </div>
                 </div>
             </div>

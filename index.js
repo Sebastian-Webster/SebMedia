@@ -7,6 +7,8 @@ let intervalToGetBitcoinDataMs = 500;
 
 let switchingAccount = false;
 
+let temperatureChartData = [];
+
 
 function onSiteFirstLoad() {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -28,6 +30,8 @@ function onSiteFirstLoad() {
     setUpHTTPCat()
 
     getPublicIP()
+
+    initTemperatureChart()
 }
 
 function showCreateNoteForm() {
@@ -587,6 +591,8 @@ function setElementsToDarkMode() {
         element.classList.remove('lightMode');
         element.classList.add('darkMode');
     }
+
+    updateCharts()
 }
 
 function setElementsToLightMode() {
@@ -599,6 +605,8 @@ function setElementsToLightMode() {
         element.classList.remove('darkMode');
         element.classList.add('lightMode');
     }
+
+    updateCharts()
 }
 
 
@@ -768,3 +776,115 @@ function logout() {
 
     actUponLoginStatus()
 }
+
+async function initTemperatureChart() {
+    await fetch('https://www.7timer.info/bin/astro.php?lon=174.763336&lat=-36.848461&ac=0&unit=metric&output=json&tzshift=0')
+    .then(response => response.json())
+    .then(data => {
+        data = data.dataseries
+        let temperatureData = []
+
+        for (item of data) {
+            if (temperatureData.length == 4) break
+            temperatureData.push(item.temp2m)
+        }
+
+        temperatureChartData = temperatureData;
+
+        let sebCardTemplate = document.getElementById('sebCardItem')
+        let sebCard = sebCardTemplate.content.cloneNode(true);
+
+        sebCard.querySelector('div').id = 'temperatureChartParent'
+
+        let title = document.createElement('h1')
+        title.textContent = 'Auckland Temperature Over Next 12 Hours'
+        title.classList.add('darkMode', 'headerTitle')
+        sebCard.querySelector('.sebCardTitle').appendChild(title)
+        sebCard.querySelector('.sebCardTitle').classList.remove('px-5')
+        sebCard.querySelector('.sebCardTitle').classList.add('px-4')
+
+        let itemsContainer = sebCard.querySelector('.sebCardItemsContainer')
+        itemsContainer.style.width = '100%'
+        itemsContainer.style.height = '200%'
+
+        document.body.appendChild(sebCard)
+
+        displayTemperatureChart()
+    }).catch(error => console.error(error))
+}
+
+function removeChildNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild)
+    }
+}
+
+function updateCharts() {
+    //If adding more charts later, you can add the display function here to update charts on theme change or resize change.
+    displayTemperatureChart()
+}
+
+function displayTemperatureChart() {
+    if (temperatureChartData.length == 4) {
+        let chartData = {
+            legend: {
+                data: ['Temperature in Celsius'],
+                textStyle: {
+                    color: darkModeSwitch.checked ? 'Yellow' : '#ea820b'
+                },
+            },
+            xAxis: {
+                data: ['3 Hrs', '6 Hrs', '9 Hrs', '12 Hrs'],
+                axisLabel: {
+                    color: darkModeSwitch.checked ? 'Yellow' : '#ea820b',
+                    fontWeight: 'bold'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: darkModeSwitch.checked ? 'Yellow' : '#ea820b'
+                    }
+                }
+            },
+            yAxis: {
+                textStyle: {
+                    color: darkModeSwitch.checked ? 'Yellow' : '#ea820b',
+                    fontWeight: 'bold'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: darkModeSwitch.checked ? 'Yellow' : '#ea820b'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Temperature in Celsius',
+                    type: 'bar',
+                    data: temperatureChartData,
+                    color: darkModeSwitch.checked ? 'Yellow' : '#ea820b'
+                }
+            ],
+            backgroundColor: darkModeSwitch.checked ? '#000000' : '#ffffff',
+            tooltip: {
+                backgroundColor: darkModeSwitch.checked ? '#000000' : '#ffffff',
+                textStyle: {
+                    color: darkModeSwitch.checked ? 'Yellow' : '#ea820b'
+                }
+            }
+        }
+
+        let chartWidget = document.getElementById('temperatureChartParent')
+        let chartContainer = document.createElement('div')
+        chartContainer.style.width = '100%'
+        chartContainer.style.height = '100%'
+        chartContainer.id = 'temperatureChart'
+        let cardItemsContainer = chartWidget.querySelector('.sebCardItemsContainer')
+        if (cardItemsContainer) removeChildNodes(cardItemsContainer)
+        cardItemsContainer.appendChild(chartContainer)
+
+        let temperatureChart = echarts.init(document.getElementById('temperatureChart'))
+        temperatureChart.setOption(chartData)
+    }
+}
+
+window.onresize = updateCharts

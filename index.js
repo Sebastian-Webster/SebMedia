@@ -628,11 +628,11 @@ darkModeSwitch.addEventListener('change', function() {
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
     if (event.matches) {
-        setElementsToDarkMode();
         darkModeSwitch.checked = true
+        setElementsToDarkMode();
     } else {
-        setElementsToLightMode();
         darkModeSwitch.checked = false
+        setElementsToLightMode();
     }
 });
 
@@ -816,6 +816,7 @@ async function initTemperatureChart() {
         document.body.appendChild(sebCard)
 
         displayTemperatureChart()
+        updateThemeOfElements()
     }).catch(error => console.error(error))
 }
 

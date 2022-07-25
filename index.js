@@ -135,6 +135,8 @@ function displayNote(note) {
     let notesContainer = document.getElementById('notesContainer')
     notesContainer.style.position = 'static'
     notesContainer.style.visibility = 'visible'
+
+    updateThemeOfElements()
 }
 
 function deleteNote(id) {
@@ -214,6 +216,8 @@ function showSignupForm(showLoginButton) {
 
     document.querySelector('header').after(sebCard) //Insert the signup form after the header
     document.getElementById('signupForm').addEventListener('submit', signup)
+
+    updateThemeOfElements()
 }
 
 function switchAccountToggle() {
@@ -257,6 +261,8 @@ function showLoginForm() {
 
     document.querySelector('header').after(sebCard) //Insert the signup form after the header
     document.getElementById('loginForm').addEventListener('submit', login)
+
+    updateThemeOfElements()
 }
 
 function updateThemeOfElements() {

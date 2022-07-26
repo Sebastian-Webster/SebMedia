@@ -143,11 +143,7 @@ button.lightMode {
   color: black;
 }
 
-button:active, button:hover {
-  animation: fadeInAndOut 1s infinite;
-}
-
-.flashingElement {
+button:active, button:hover, .flashingElement {
   animation: fadeInAndOut 1s infinite;
 }
 
